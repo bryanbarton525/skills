@@ -1,0 +1,353 @@
+{
+  "format_version": 1,
+  "skill": "golang-best-practices",
+  "cases": [
+    {
+      "id": "interface-restraint",
+      "kind": "implementation",
+      "prompt": "Implement package durationcfg: Parse(raw string) (time.Duration, error) parses a Go duration string and accepts only positive values. Add focused tests for valid, invalid, zero, and negative input. This is a small reusable helper; keep its public API limited to Parse. Work offline with the standard library and run the relevant checks.",
+      "files": {
+        "go.mod": "module example.com/durationcfg\n\ngo 1.22\n"
+      },
+      "criteria": [
+        {
+          "id": "behavior",
+          "required": true,
+          "check": "Positive durations parse; invalid, zero, and negative values return errors. Tests exercise these observable outcomes."
+        },
+        {
+          "id": "restraint",
+          "required": true,
+          "check": "No mock-only interface, parser factory, plugin registry, or unnecessary dependency is introduced."
+        },
+        {
+          "id": "layout",
+          "required": true,
+          "check": "A small public package remains at module root with adjacent tests; no empty application scaffolding is generated."
+        },
+        {
+          "id": "telemetry-scope",
+          "required": true,
+          "check": "The pure helper neither logs returned errors nor introduces metrics infrastructure."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "Generated code passes go test ./... and go vet ./...; reported checks match actual execution."
+        }
+      ]
+    },
+    {
+      "id": "extensible-delivery",
+      "kind": "implementation",
+      "prompt": "Build a small CLI called deliver. It sends the same message through either an HTTP webhook or an io.Writer selected by configuration. The webhook uses a bearer token, honors cancellation, accepts any 2xx response, and rejects other statuses. The writer emits the message followed by a newline. Include operational logging and metrics suitable for this small application, without an external telemetry service. A third delivery provider should be straightforward for another contributor to add. Work offline using the standard library. Add tests using an in-process HTTP server and a buffer, including invalid configuration and failed delivery. The CLI should exit unsuccessfully when delivery fails.",
+      "files": {
+        "go.mod": "module example.com/deliver\n\ngo 1.22\n"
+      },
+      "criteria": [
+        {
+          "id": "contract",
+          "required": true,
+          "check": "Shared orchestration depends on a small delivery capability whose methods and values work for both providers, rather than a copy of a provider's SDK methods."
+        },
+        {
+          "id": "construction",
+          "required": true,
+          "check": "Provider selection and initialization are centralized in a factory or composition boundary. Invalid selections and incomplete configuration return actionable errors."
+        },
+        {
+          "id": "boundaries",
+          "required": true,
+          "check": "Providers are in focused files or packages; orchestration and construction are discoverable and imports are acyclic. Adding a provider does not require editing existing providers."
+        },
+        {
+          "id": "logging",
+          "required": true,
+          "check": "Shared configuration creates injectable or derivable structured logger instances; operational records contain useful context and never the bearer token. Delivery failure is logged at one owning boundary."
+        },
+        {
+          "id": "metrics",
+          "required": true,
+          "check": "Observable instrumentation records attempts, outcomes, and latency, with bounded dimensions. It has an actual local observation path or test sink, rather than unused declarations or a no-op metrics implementation."
+        },
+        {
+          "id": "behavior",
+          "required": true,
+          "check": "HTTP authentication, cancellation, 2xx success, non-2xx error, writer output, and unsuccessful CLI exit are implemented and verifiable. Response bodies are closed."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "Tests exercise successful and failed delivery and construction. go test ./... and go vet ./... pass; no external services or new dependencies are required."
+        }
+      ]
+    },
+    {
+      "id": "error-rollup",
+      "kind": "implementation",
+      "prompt": "Fix this batch runner. If Prepare fails, no tasks may run. Once preparation succeeds, ordinary task failures should not prevent remaining independent tasks from running. Cancellation should stop scheduling further tasks. Callers need to inspect original errors with errors.Is and know which tasks failed. Keep the exported API unchanged and add regression tests. Keep a single application-level failure report. Work offline with the standard library.",
+      "files": {
+        "go.mod": "module example.com/batch\n\ngo 1.22\n",
+        "batch.go": "package batch\n\nimport (\n \"context\"\n \"log\"\n)\n\ntype Task struct {\n Name string\n Run func(context.Context) error\n}\n\nfunc Execute(ctx context.Context, prepare func(context.Context) error, tasks []Task) error {\n if err := prepare(ctx); err != nil {\n  log.Printf(\"prepare failed: %v\", err)\n  return err\n }\n for _, task := range tasks {\n  if err := task.Run(ctx); err != nil {\n   log.Printf(\"task failed: %v\", err)\n   return err\n  }\n }\n return nil\n}\n",
+        "cmd/batch/main.go": "package main\n\nimport (\n \"context\"\n \"log\"\n \"os\"\n batch \"example.com/batch\"\n)\n\nfunc main() {\n if err := batch.Execute(context.Background(), func(context.Context) error { return nil }, nil); err != nil {\n  log.Printf(\"batch failed: %v\", err)\n  os.Exit(1)\n }\n}\n"
+      },
+      "criteria": [
+        {
+          "id": "aggregation",
+          "required": true,
+          "check": "Two independent sentinel failures are both discoverable with errors.Is; a later task still runs, and both failed task names appear in the returned error."
+        },
+        {
+          "id": "prerequisite",
+          "required": true,
+          "check": "A preparation failure remains inspectable and prevents every task from executing."
+        },
+        {
+          "id": "cancellation",
+          "required": true,
+          "check": "Cancellation before task scheduling prevents further tasks; the returned error preserves the cancellation cause and already collected failures where applicable."
+        },
+        {
+          "id": "logging-owner",
+          "required": true,
+          "check": "The batch package returns contextual errors without logging them; the application boundary retains one failure report and an unsuccessful exit."
+        },
+        {
+          "id": "scope-and-tests",
+          "required": true,
+          "check": "Exported API remains unchanged. Regression tests cover aggregation, prerequisites, and cancellation; go test ./... and go vet ./... pass."
+        }
+      ]
+    },
+    {
+      "id": "cohesive-layout",
+      "kind": "implementation",
+      "prompt": "Reorganize package implementers so contributors can find and extend each implementation easily. Preserve exported signatures, output, and the existing import path. This is a file-organization refactor, not a feature request. Add regression coverage if useful and run appropriate checks. Do not introduce dependencies.",
+      "files": {
+        "go.mod": "module example.com/adapters\n\ngo 1.22\n",
+        "implementers/implement.go": "package implementers\n\nimport \"fmt\"\n\ntype GitHub struct { Owner string }\nfunc (g GitHub) Label() string { return \"github/\" + g.Owner }\n\ntype GitLab struct { Group string }\nfunc (g GitLab) Label() string { return \"gitlab/\" + g.Group }\n\ntype Kubernetes struct { Namespace string }\nfunc (k Kubernetes) Label() string { return \"k8s/\" + k.Namespace }\n\nfunc Label(provider, name string) (string, error) {\n switch provider {\n case \"github\": return (GitHub{Owner: name}).Label(), nil\n case \"gitlab\": return (GitLab{Group: name}).Label(), nil\n case \"k8s\": return (Kubernetes{Namespace: name}).Label(), nil\n default: return \"\", fmt.Errorf(\"unsupported provider %q\", provider)\n }\n}\n"
+      },
+      "criteria": [
+        {
+          "id": "cohesion",
+          "required": true,
+          "check": "Each implementation has a focused file; shared selection is separately discoverable. Judge responsibilities rather than requiring exact filenames."
+        },
+        {
+          "id": "compatibility",
+          "required": true,
+          "check": "The public import path, types, fields, function signatures, label output, and unsupported-provider behavior remain compatible."
+        },
+        {
+          "id": "restraint",
+          "required": true,
+          "check": "No unnecessary package-per-file hierarchy, new plugin framework, SDK integration, interface, or telemetry infrastructure is introduced for this organizational change."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "go test ./... and go vet ./... pass; behavior checks cover all providers and an unsupported provider."
+        }
+      ]
+    },
+    {
+      "id": "dependency-choice",
+      "kind": "design",
+      "prompt": "Recommend dependency choices for three upcoming Go features: JSON configuration decoding, managing Kubernetes resources, and an unusual binary codec absent from the standard library and product SDKs. Our approved dependency notes say: the codec's small upstream has 40 stars, three active maintainers, monthly releases for two years, a supported Go version matching ours, and a security policy; a competing wrapper has 12,000 stars, no release in four years, and an open security advisory. Give a concise recommendation based only on these supplied notes; do not browse, install packages, or claim current facts not supplied here.",
+      "files": {},
+      "criteria": [
+        {
+          "id": "standard-library",
+          "required": true,
+          "check": "Selects encoding/json for ordinary JSON decoding without proposing an unnecessary dependency."
+        },
+        {
+          "id": "official-sdk",
+          "required": true,
+          "check": "Prefers official maintained Kubernetes Go packages appropriate to the task, rather than inventing a bespoke client or choosing an obscure wrapper by default."
+        },
+        {
+          "id": "maintenance-evidence",
+          "required": true,
+          "check": "Evaluates the codec using maintenance and security evidence, does not reject it solely for low stars, and does not favor the stale wrapper solely for popularity."
+        },
+        {
+          "id": "honesty",
+          "required": true,
+          "check": "Distinguishes a recommendation from completed compatibility or security verification, honors the no-browsing constraint, and invents no release versions or checks."
+        }
+      ]
+    },
+    {
+      "id": "public-library",
+      "kind": "implementation",
+      "prompt": "Add ParseAll(raw []string) ([]time.Duration, error) to this public library. Return successfully parsed durations in input order, reject nonpositive durations, collect independent failures with their input indexes, and return nil error if all inputs succeed. Keep existing consumers compatible. Add focused tests. Work offline without dependencies.",
+      "files": {
+        "go.mod": "module example.com/durations\n\ngo 1.22\n",
+        "duration.go": "package durations\n\nimport \"time\"\n\nfunc Parse(raw string) (time.Duration, error) { return time.ParseDuration(raw) }\n"
+      },
+      "criteria": [
+        {
+          "id": "public-layout",
+          "required": true,
+          "check": "The public package stays importable at example.com/durations; implementation is not moved wholesale under internal or an unnecessary cmd hierarchy."
+        },
+        {
+          "id": "compatibility",
+          "required": true,
+          "check": "Existing Parse behavior remains unchanged, including its treatment of zero and negative durations; the new restriction is implemented in ParseAll."
+        },
+        {
+          "id": "partial-success",
+          "required": true,
+          "check": "Successful durations retain input order, independent failures include original input indexes, and underlying parse errors remain reachable through wrapping and aggregation. Do not assume time.ParseDuration returns the exported time.ParseError type."
+        },
+        {
+          "id": "edge-cases",
+          "required": true,
+          "check": "Tests cover empty input, all success, mixed valid/invalid inputs, zero, and negative durations. No pure-helper logging, factories, or mock interfaces are added."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "go test ./... and go vet ./... pass and actual checks are reported accurately."
+        }
+      ]
+    },
+    {
+      "id": "bounded-runner",
+      "kind": "implementation",
+      "prompt": "Implement Run(ctx context.Context, limit int, tasks []func(context.Context) error) error in package runner. Bound active work and owned goroutines by limit. Return an error for a nonpositive limit before invoking any task. Ordinary independent failures must not prevent remaining work; preserve their original causes with task indexes. On cancellation stop scheduling new work and wait for started callbacks to return before returning. Preserve cancellation and earlier failures. Callbacks are cooperative. Library callers own telemetry. Add deterministic regression tests for bounds, completion, cancellation and failures. Work offline with the standard library, preserve the API, and run tests including race detection.",
+      "files": {
+        "go.mod": "module example.com/runner\n\ngo 1.22\n"
+      },
+      "criteria": [
+        {
+          "id": "bound",
+          "required": true,
+          "check": "Active tasks and owned goroutines are bounded by limit; capacity is not acquired only after spawning unbounded goroutines."
+        },
+        {
+          "id": "ownership",
+          "required": true,
+          "check": "Run waits for all started callbacks on success and cancellation; canceled context stops further scheduling apart from unavoidable in-flight scheduling races."
+        },
+        {
+          "id": "errors",
+          "required": true,
+          "check": "Invalid limits invoke no tasks. Independent failures retain identity and task indexes; cancellation and previously completed failures remain inspectable."
+        },
+        {
+          "id": "deterministic-tests",
+          "required": true,
+          "check": "Tests coordinate with synchronization rather than sleeps, include cancellation and independent failures, and bound waits so a broken implementation fails rather than hangs."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "go test -race ./... and go vet ./... pass. No global state, needless interface or new dependency is added."
+        }
+      ]
+    },
+    {
+      "id": "response-lifecycle",
+      "kind": "implementation",
+      "prompt": "Fix Fetch while preserving its exported API. Fetch should issue a cancellable GET through the injected shared HTTP client, accept only 2xx, decode the JSON value field and return it, and reject responses larger than 1024 bytes. Close each obtained response body on success, non-2xx, malformed JSON, and oversize failures. Leave the injected client under caller ownership and return contextual errors without logging them. Add failure-path tests with controlled response bodies and cancellation; no external services or dependencies. Run relevant checks.",
+      "files": {
+        "go.mod": "module example.com/fetcher\n\ngo 1.22\n",
+        "fetch.go": "package fetcher\n\nimport (\"context\"; \"encoding/json\"; \"net/http\")\n\nfunc Fetch(ctx context.Context, client *http.Client, endpoint string) (string, error) {\n resp, err := client.Get(endpoint)\n if err != nil { return \"\", err }\n var result struct { Value string `json:\"value\"` }\n err = json.NewDecoder(resp.Body).Decode(&result)\n return result.Value, err\n}\n"
+      },
+      "criteria": [
+        {
+          "id": "cleanup",
+          "required": true,
+          "check": "Every acquired response body is closed on success, malformed JSON, non-2xx and oversize paths; per-request cleanup does not close or replace the shared client."
+        },
+        {
+          "id": "limits",
+          "required": true,
+          "check": "HTTP non-2xx is an error and response reading is bounded; responses over 1024 bytes are rejected, including valid JSON followed by excess whitespace."
+        },
+        {
+          "id": "cancellation",
+          "required": true,
+          "check": "Request uses caller context and returned errors preserve transport and cancellation causes."
+        },
+        {
+          "id": "failure-tests",
+          "required": true,
+          "check": "Controlled body tests observe closure on each relevant path, test transport failure and cancellation, and verify shared client remains usable."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "Public signature remains compatible, no duplicate logging is introduced, and go test ./... and go vet ./... pass."
+        }
+      ]
+    },
+    {
+      "id": "configuration-contract",
+      "kind": "implementation",
+      "prompt": "Implement Load(lookup func(string) (string, bool)) (Config, error) for this public configuration package. Inputs are APP_NAME, APP_WORKERS, APP_TIMEOUT, APP_TOKEN. Name and token are required and cannot be blank or whitespace-only. Workers defaults to 4 only when absent; if present it must be a positive integer. Timeout defaults to 5s only when absent; if present it must parse as a positive Go duration. Present-but-empty numeric/duration settings are invalid. Return all independent validation failures with field names, preserve parsing causes, and never include the token value in errors. Configuration loading must have no startup side effects or direct environment reads outside the supplied lookup. Keep the exported Config unchanged, document the contract, and add regression tests. Work offline with standard library only.",
+      "files": {
+        "go.mod": "module example.com/appconfig\n\ngo 1.22\n",
+        "config.go": "package appconfig\n\nimport \"time\"\n\ntype Config struct {\n Name string\n Workers int\n Timeout time.Duration\n Token string\n}\n"
+      },
+      "criteria": [
+        {
+          "id": "defaults",
+          "required": true,
+          "check": "Missing optional fields get documented defaults; present empty and invalid values are rejected without silently defaulting."
+        },
+        {
+          "id": "aggregation",
+          "required": true,
+          "check": "Invalid name, workers, timeout and token are reported together with field names; parsing causes are wrapped rather than flattened."
+        },
+        {
+          "id": "boundary",
+          "required": true,
+          "check": "Lookup is injected, config stays public at its existing path, and no init registration, environment globals or startup side effects are introduced."
+        },
+        {
+          "id": "secrets-contract",
+          "required": true,
+          "check": "Token contents never appear in returned errors; exported API docs explain partial-config validity and callers must not use invalid config."
+        },
+        {
+          "id": "validation",
+          "required": true,
+          "check": "Tests cover absent versus empty settings, defaults, multiple failures, secrets and valid input; go test ./... and go vet ./... pass."
+        }
+      ]
+    },
+    {
+      "id": "testing-performance-plan",
+      "kind": "design",
+      "prompt": "Review this proposed testing and performance plan and give a concrete replacement plan, without implementing or claiming measurements. A Go 1.22 parser has Parse(string) (int, error) and Format(int) string; Parse(Format(n)) should return n for every int. A background worker test sleeps 20ms and then reads a shared counter without synchronization. Parallel tests call os.Setenv to vary configuration. A benchmark rebuilds a large fixture inside the timed loop and discards Parse results. The team wants to add sync.Pool and unsafe conversions because they seem faster. Specify suitable test doubles or real fixtures, deterministic concurrency coordination, cleanup, meaningful fuzz properties, and a reproducible baseline-versus-candidate performance experiment. Explain what commands you would run; do not browse or execute them.",
+      "files": {},
+      "criteria": [
+        {
+          "id": "test-strategy",
+          "required": true,
+          "check": "Replaces timing assumptions and unsynchronized reads with explicit coordination and bounded waits; addresses parallel mutation of process environment and cleanup ownership."
+        },
+        {
+          "id": "fuzzing",
+          "required": true,
+          "check": "Proposes seeded round-trip and malformed-input properties appropriate to the actual Parse/Format contract, without assuming arbitrary strings must parse or round-trip exactly."
+        },
+        {
+          "id": "benchmark",
+          "required": true,
+          "check": "Separates setup from measurement, consumes results, uses Go 1.22-compatible APIs, and compares unchanged baseline/candidate under comparable workloads with time and allocation measurements."
+        },
+        {
+          "id": "evidence",
+          "required": true,
+          "check": "Requires profiling or representative evidence before pools/unsafe complexity, retains correctness checks, and clearly labels checks and speedups as proposed rather than executed."
+        }
+      ]
+    }
+  ]
+}
