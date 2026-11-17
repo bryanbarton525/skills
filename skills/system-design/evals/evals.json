@@ -1,0 +1,180 @@
+{
+  "skill_name": "system-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have an agent management problem: teams are deploying AI agents to our k8s clusters by hand and nobody can tell what is running, who owns it, or why a multi-agent run failed. I want to use kagent, agentgateway and a custom management plane so we can define agents and agent teams, use A2A for debuggable agent-to-agent calls, keep a registry of agents, and register deterministic workflows agents can run instead of spending tokens. Help me design this before we write any plan.",
+      "expected_output": "The agent frames a solution-free problem statement and the proposed solution, creates the design directory with DESIGN.md, and opens with a numbered round of framing or level 1 questions with recommendations. It stops to wait for the user and does not draw containers, write plan.md or write code.",
+      "files": [],
+      "expectations": [
+        "DESIGN.md exists under a docs/design/<slug>/ directory (or the repo's existing docs convention)",
+        "DESIGN.md contains a problem statement section that does not name kagent, agentgateway or the management plane as the problem",
+        "DESIGN.md contains a proposed solution section naming kagent, agentgateway and a custom management plane",
+        "The response asks numbered questions, each with a recommended answer",
+        "No level 2 container diagram, plan.md or implementation code was produced",
+        "The response ends by waiting for the user rather than declaring the design complete"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "we need a design doc with c4 diagrams for a webhook delivery service: customers register endpoints, we send signed events from our order system with retries and a dead letter queue. level 1 is already agreed in docs/design/webhooks/1-context.md and DESIGN.md (copied from the input files). move on to containers",
+      "expected_output": "The agent reads the existing design set, starts level 2 by researching and grilling about containers (deployable units, state ownership, protocols, failure behaviour) with recommended answers, and either waits for answers or drafts a containers diagram with assumptions marked. Every container carries a technology and every edge a protocol. It does not skip to components.",
+      "files": [
+        "evals/files/webhooks/DESIGN.md",
+        "evals/files/webhooks/1-context.md"
+      ],
+      "expectations": [
+        "The agent read the existing DESIGN.md and 1-context.md before asking level 2 questions",
+        "Questions cover state ownership, protocol between containers, and behaviour when a container fails",
+        "Any drafted 2-containers.md has a Mermaid diagram whose nodes include a technology and whose edges include a protocol",
+        "Any assumption made without a user answer is listed under an Assumptions heading",
+        "No level 3 component diagram was produced"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's our approved design set in docs/design/webhooks (copied from the input files) (all four levels signed off). Before we plan, I still don't really see how a single event gets from the order system to a customer's endpoint and what happens when their endpoint is down for an hour. Tie it together for me.",
+      "expected_output": "The agent proposes the scenarios to trace (happy path delivery, an hour-long endpoint outage, one operational path), writes sequence diagrams in flows.md using element names that match the level diagrams, fills the traceability table, and flags any element or relationship the flows need that the diagrams do not contain.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "flows.md exists and contains at least two Mermaid sequenceDiagram blocks",
+        "One flow covers an hour-long endpoint outage with retries; exhaustion or a permanent failure is shown as a separate dead-letter branch rather than assumed to occur after one hour",
+        "Participants in the sequence diagrams use the same names as elements in the level docs",
+        "DESIGN.md has a traceability table mapping goals to elements",
+        "The response names any gap where a flow needed an element or relationship missing from the diagrams, or states that none was found",
+        "Traceability includes acceptance criteria and verification methods, with unexecuted checks clearly identified as proposed"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use the approved webhook design files copied into docs/design/webhooks. I reject the shared-database design in Level 2: give Endpoint API and Dispatcher separate private databases and use a durable queue for replay requests. Revise the diagram and show it to me for review. I have not approved this correction yet; do not move to component design.",
+      "expected_output": "The agent revises Level 2, reopens its approval in both documents, assesses dependent artifacts, and shows the diagram for review while preserving unaffected approvals. It waits for approval.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "The revised container diagram has separate private databases and a durable replay queue with labelled relationships",
+        "Both 2-containers.md and its DESIGN.md entry are in review rather than approved",
+        "The agent identifies affected downstream docs or flows and reopens affected approvals rather than treating them as current",
+        "The unchanged Level 1 approval is preserved unless the agent demonstrates a material change to its boundary or relationships",
+        "The response includes a Mermaid diagram or an accessible rendered preview alongside the doc link and walkthrough; if rendering is unavailable it explicitly provides source and explains the limitation",
+        "The agent requests review of the correction without approving it on the user behalf or advancing to component design"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Use the approved webhook design files copied into docs/design/webhooks. While designing Endpoint API components we discovered a new architecture requirement: endpoint administration must use our existing company identity provider for single sign-on. That external system is absent from the approved context. Update the affected design and show me the earliest changed level for review before we continue. I have not approved the changed diagrams.",
+      "expected_output": "The agent updates the context to include the identity provider, reopens affected approvals, explains the consequences for containers and components, and waits for context approval before resuming dependent design.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "The external identity provider and its labelled relationship appear in the revised Level 1 diagram",
+        "The context status is in review in both 1-context.md and DESIGN.md",
+        "Affected downstream approvals are reassessed, with the identity-dependent Level 2 design marked in review",
+        "The agent presents Level 1 for renewed approval and does not continue Endpoint API component design before receiving it",
+        "The agent explains the approval impact and preserves approvals of unrelated artifacts unless an actual dependency change is identified"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "We are preparing the webhook design handoff from the copied files in docs/design/webhooks. There is an unresolved issue: we do not know whether the chosen storage can retain events for the required seven days within our budget. This may invalidate our no-event-loss and replay goal. I have not accepted that risk. Record the issue and tell me whether this is ready for planning; do not write plan.md or implementation code.",
+      "expected_output": "The agent classifies the uncertainty as an architecture blocker, records the owner and affected work, keeps the design blocked, and recommends the evidence or decision needed without inventing user acceptance.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "DESIGN.md records the retention and budget uncertainty as an architecture blocker linked to the relevant goal or work",
+        "The design status is blocked rather than ready for planning",
+        "The response identifies the evidence or decision needed, with an owner or a recommendation to confirm the owner",
+        "The agent does not record the risk as accepted or claim a capacity or budget check has passed without evidence",
+        "No plan.md or implementation code is produced"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Use the copied webhook design in docs/design/webhooks. I explicitly accept the risk that our storage capacity and cost estimates may be wrong; capacity and cost have not been validated. I own a load and retention cost proof-out, and it must finish before storage-dependent implementation. Record that conditional acceptance and build-order dependency. This acceptance does not approve any revised diagrams or missing flows.",
+      "expected_output": "The agent records the uncertainty, impact, explicit acceptance, owner, validation step and prerequisite. It carries the validation into build order without treating acceptance as proof or blanket artifact approval.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "An accepted-risk entry states the storage uncertainty and impact, the user acceptance, owner, validation step and work it must precede",
+        "Build order places the capacity and retention cost proof-out before storage-dependent implementation",
+        "The agent distinguishes risk acceptance from successful validation and preserves the seven-day retention requirement",
+        "The agent does not mark unreviewed or missing artifacts approved or declare readiness solely because this risk was accepted"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Use the copied webhook design in docs/design/webhooks. Level 4 was intentionally limited to Retry scheduler; the public contracts of Event consumer, Signed sender and Delivery repository are sufficient at Level 3 for this review. Walk one delivery through the Dispatcher in flows.md and connect our goals to acceptance checks. Treat intentionally deferred code detail separately from genuine gaps in the diagrams. Do not expand Level 4 or claim tests were run.",
+      "expected_output": "The flow uses approved component names and the selected code detail where useful. Deferred components remain at Level 3, true gaps are reported, and goals get measurable verification criteria with proposed checks distinguished from results.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "flows.md contains a sequence using the existing component names and does not invent code-level types or functions for deferred components",
+        "The agreed Level 4 scope and reasons for deferral are recorded rather than treated as missing design",
+        "Genuine missing relationships or elements are identified separately from deferred implementation detail",
+        "Traceability preserves the existing latency, retention/replay and signing goals and provides pass/fail criteria and verification methods",
+        "Any new workload targets or conditions are labelled as proposed until confirmed, and checks are not reported as executed",
+        "No additional Level 4 docs are created merely to make every flow participant a code element"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "We have approved the framing and Level 1 for an agent platform: operators manage agent definitions, and the platform uses the existing Kubernetes API. Level 2 choices are settled for this draft: Management API and Agent controller are separate Go applications; both call Kubernetes over HTTPS using separate service accounts; definitions are Agent custom resources governed by an Agent CRD and stored through the Kubernetes API. Production runs both apps with two replicas in namespace agents on our existing cluster. Show the container diagram and a deployment view for review, including identity and replica failure boundaries. Do not move to components.",
+      "expected_output": "The agent models the applications as logical containers, treats the CRD as a schema contract, and produces a separate deployment view mapping runtime instances to the logical model with the stated identities and placement.",
+      "files": [],
+      "expectations": [
+        "The logical container diagram models Management API and Agent controller as containers and the existing Kubernetes API as their external dependency",
+        "The Agent CRD is documented as an API schema or contract rather than a runnable container",
+        "A deployment doc names production and shows the cluster, agents namespace, two replicas per application and separate service-account identities",
+        "Deployment instances map to the logical containers; replicas are not presented as different logical containers",
+        "The agent explains failure isolation without claiming two replicas alone guarantee availability across node or zone failures when placement was not specified",
+        "The diagrams are shown for review, with unconfirmed placement or failure assumptions identified, and no Level 3 design is produced"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "The revised Level 1 webhook diagram in docs/design/webhooks/1-context.md is the version you just showed me after I rejected customer-triggered replay. I reviewed it and approve it as written: customers register endpoints and inspect failures, and replay stays internal. Record this approval and start the container discussion. We have not decided on the deployment units or stores yet.",
+      "expected_output": "The agent records approval of the current revised context in both docs and begins Level 2 research and grilling. It preserves the correction, does not ask for the same approval again, and waits for container decisions.",
+      "files": [
+        "evals/files/webhooks-review/DESIGN.md",
+        "evals/files/webhooks-review/1-context.md"
+      ],
+      "expectations": [
+        "Level 1 is marked approved in both DESIGN.md and 1-context.md, using the current date",
+        "The approved context retains internal replay and does not restore the previously rejected customer-triggered replay relationship",
+        "The agent starts Level 2 with relevant questions and recommendations rather than requesting Level 1 approval again",
+        "Level 2 is not marked approved and no Level 3 design or implementation is produced"
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@ Locally maintained skills for coding agents.
 
 | Skill | Purpose |
 | --- | --- |
+| [system-design](skills/system-design/SKILL.md) | Design a system before planning: frame the problem and proposed solution, then grill and draw C4 diagrams level by level into reviewed design docs. |
 | [review-with-rules](skills/review-with-rules/SKILL.md) | Review PRs, branches, commits, and local changes with scoped REVIEW.md policy and verified findings. Create or update review policy when requested. |
 | [golang-best-practices](skills/golang-best-practices/SKILL.md) | Develop Go components with meaningful interfaces, factories, observability, clear error and resource ownership, cohesive packages, behavioral testing, and measured optimization. |
 
