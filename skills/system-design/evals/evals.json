@@ -1,0 +1,54 @@
+{
+  "skill_name": "system-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have an agent management problem: teams are deploying AI agents to our k8s clusters by hand and nobody can tell what is running, who owns it, or why a multi-agent run failed. I want to use kagent, agentgateway and a custom management plane so we can define agents and agent teams, use A2A for debuggable agent-to-agent calls, keep a registry of agents, and register deterministic workflows agents can run instead of spending tokens. Help me design this before we write any plan.",
+      "expected_output": "The agent frames a solution-free problem statement and the proposed solution, creates the design directory with DESIGN.md, and opens with a numbered round of framing or level 1 questions with recommendations. It stops to wait for the user and does not draw containers, write plan.md or write code.",
+      "files": [],
+      "expectations": [
+        "DESIGN.md exists under a docs/design/<slug>/ directory (or the repo's existing docs convention)",
+        "DESIGN.md contains a problem statement section that does not name kagent, agentgateway or the management plane as the problem",
+        "DESIGN.md contains a proposed solution section naming kagent, agentgateway and a custom management plane",
+        "The response asks numbered questions, each with a recommended answer",
+        "No level 2 container diagram, plan.md or implementation code was produced",
+        "The response ends by waiting for the user rather than declaring the design complete"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "we need a design doc with c4 diagrams for a webhook delivery service: customers register endpoints, we send signed events from our order system with retries and a dead letter queue. level 1 is already agreed in docs/design/webhooks/1-context.md and DESIGN.md (copied from the input files). move on to containers",
+      "expected_output": "The agent reads the existing design set, starts level 2 by researching and grilling about containers (deployable units, state ownership, protocols, failure behaviour) with recommended answers, and either waits for answers or drafts a containers diagram with assumptions marked. Every container carries a technology and every edge a protocol. It does not skip to components.",
+      "files": [
+        "evals/files/webhooks/DESIGN.md",
+        "evals/files/webhooks/1-context.md"
+      ],
+      "expectations": [
+        "The agent read the existing DESIGN.md and 1-context.md before asking level 2 questions",
+        "Questions cover state ownership, protocol between containers, and behaviour when a container fails",
+        "Any drafted 2-containers.md has a Mermaid diagram whose nodes include a technology and whose edges include a protocol",
+        "Any assumption made without a user answer is listed under an Assumptions heading",
+        "No level 3 component diagram was produced"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's our approved design set in docs/design/webhooks (copied from the input files) (all four levels signed off). Before we plan, I still don't really see how a single event gets from the order system to a customer's endpoint and what happens when their endpoint is down for an hour. Tie it together for me.",
+      "expected_output": "The agent proposes the scenarios to trace (happy path delivery, an hour-long endpoint outage, one operational path), writes sequence diagrams in flows.md using element names that match the level diagrams, fills the traceability table, and flags any element or relationship the flows need that the diagrams do not contain.",
+      "files": [
+        "evals/files/webhooks-complete/DESIGN.md",
+        "evals/files/webhooks-complete/1-context.md",
+        "evals/files/webhooks-complete/2-containers.md",
+        "evals/files/webhooks-complete/3-components/dispatcher.md",
+        "evals/files/webhooks-complete/4-code/retry-scheduler.md"
+      ],
+      "expectations": [
+        "flows.md exists and contains at least two Mermaid sequenceDiagram blocks",
+        "One flow covers the customer endpoint being unavailable and shows retry and dead letter behaviour",
+        "Participants in the sequence diagrams use the same names as elements in the level docs",
+        "DESIGN.md has a traceability table mapping goals to elements",
+        "The response names any gap where a flow needed an element or relationship missing from the diagrams, or states that none was found"
+      ]
+    }
+  ]
+}

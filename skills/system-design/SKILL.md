@@ -1,6 +1,6 @@
 ---
 name: system-design
-description: Design a complex system or software architecture before planning or coding. Frame the problem statement and proposed solution, then grill the user and draw C4 diagrams level by level (context, containers, components, code), producing reviewed design docs that plan.md and implementation build from.
+description: Design a complex system or software architecture before writing a plan or code. Frames the problem statement and proposed solution, then grills the user and draws C4 diagrams level by level (context, containers, components, code) into reviewed design docs that plan.md and implementation build from. Use whenever the user wants to design, architect or think through a new system, platform, service or major feature, asks for C4 or architecture diagrams, wants a design doc before plan.md, or wants to understand how the pieces of a proposed system tie together, even if they never say "C4".
 ---
 
 # System design
@@ -11,14 +11,14 @@ The user's understanding is the product. A diagram the user approved without bei
 
 ## Roles
 
-Decisions belong to the user: put each one to them with your recommendation and wait. Facts belong to you: read the code, manifests, vendor docs and existing ADRs yourself, and cite what you found. Ask the user only what cannot be looked up.
+Decisions belong to the user: put each one to them with your recommendation and wait. A decision you make silently is one the user cannot explain later, which defeats the point. Facts belong to you: read the code, manifests, vendor docs and existing ADRs yourself, and cite what you found. Ask the user only what cannot be looked up, so their attention goes to judgement rather than lookups.
 
 ## 1. Frame
 
 Write two statements with the user, in this order, before any diagram.
 
-1. **Problem statement**: what hurts today, for whom, and what it costs. It names no technology that is part of the answer. If the user's problem statement contains the solution ("we need a management plane"), grill for the pain underneath it.
-2. **Proposed solution**: the approach and named technologies the user intends to use, as a hypothesis the design will test. Add goals as observable outcomes, non-goals, and hard constraints (platform, budget, team, compliance, deadlines).
+1. **Problem statement**: what hurts today, for whom, and what it costs. It names no technology that is part of the answer, because a problem framed as a solution can only ever be solved one way. If the user's problem statement contains the solution ("we need a management plane"), grill for the pain underneath it.
+2. **Proposed solution**: the approach and named technologies the user intends to use, as a hypothesis the design will test. Treating it as a hypothesis lets later levels push back when a technology cannot do what the solution assumes. Add goals as observable outcomes, non-goals, and hard constraints (platform, budget, team, compliance, deadlines).
 
 Create the design directory and `DESIGN.md` from [the design doc layout](references/design-docs.md) and record both statements there. In an existing codebase, survey what already exists that the solution touches before asking anything, and record it as the current state.
 
@@ -26,12 +26,12 @@ Done when the user confirms both statements as written in `DESIGN.md`.
 
 ## 2. Descend the levels
 
-Work levels 1 to 4 in order. On entering a level, read its section of [the C4 level guide](references/c4-levels.md) for its scope, element vocabulary, question bank, diagram conventions and exit checks. Run this loop at every level:
+Work levels 1 to 4 in order. Each level's decisions are the prerequisites of the next: containers cannot be chosen until the boundary is agreed, and components cannot be cut until the containers are. Working one level at a time also keeps each review small enough for the user to hold in their head. On entering a level, read its section of [the C4 level guide](references/c4-levels.md) for its scope, element vocabulary, question bank, diagram conventions and exit checks. Run this loop at every level:
 
 1. **Research.** Gather the facts this level depends on: existing code, the real capabilities and limits of each named technology, deployment environment. A proposed technology that cannot do what the solution assumes is a finding to raise now.
 2. **Grill.** Interview the user in rounds. A round is every question whose prerequisites are already settled, numbered, each with your recommended answer and its reason. Wait for answers; they settle decisions and unblock the next round. Probe with concrete scenarios and failure cases ("the gateway is down while an agent is mid-task: what does the caller see?") in preference to abstract questions. Continue until no open question would change this level's diagram.
 3. **Draw.** Write the level's diagram and its doc. Every element carries a name, a one-line responsibility and, from level 2 down, its technology. Every relationship carries a verb phrase and, from level 2 down, its protocol. Mark anything you assumed without an answer as an assumption in the doc.
-4. **Review.** Present the diagram to the user: the file path, then a read-back in plain sentences of each element and relationship, the assumptions, and what the diagram deliberately leaves to the next level. Walk one key scenario through it. Ask what is wrong, missing or unclear.
+4. **Review.** Present the diagram to the user: the file path, then a read-back in plain sentences of each element and relationship, the assumptions, and what the diagram deliberately leaves to the next level. Walk one key scenario through it. Ask what is wrong, missing or unclear. The read-back matters because diagrams may not render where the user is reading, and because hearing the design as sentences exposes gaps a picture hides.
 5. **Refine.** Apply the corrections, grill any decision they reopen, and review again. Repeat until the user explicitly approves the level.
 6. **Record.** Mark the level approved in `DESIGN.md`, log the decisions made with their alternatives and reasons, and move unresolved items to open questions with an owner.
 
@@ -51,6 +51,6 @@ Done when every chosen scenario traces through the diagrams without an undrawn e
 
 ## 4. Hand off
 
-Finish `DESIGN.md` with a build order derived from the dependency direction in the diagrams, the risks worth proving early, and the remaining open questions. State that the design is ready for planning. Planning and implementation are separate work: write `plan.md` or code only when the user asks, and build it from this design set.
+Finish `DESIGN.md` with a build order derived from the dependency direction in the diagrams, the risks worth proving early, and the remaining open questions. State that the design is ready for planning. Planning and implementation are separate work: write `plan.md` or code only when the user asks, and build it from this design set. Stopping here gives the user a clean point to review the whole design before effort shifts to building it.
 
 When implementation later contradicts the design, update the affected diagram and doc in the same change so the design set stays a true map of the code.
