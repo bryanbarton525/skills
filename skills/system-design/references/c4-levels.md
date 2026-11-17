@@ -55,7 +55,7 @@ flowchart TB
 
 **Scope.** Inside the system boundary: each separately deployable or runnable unit and each data store, with the technology chosen and how they communicate.
 
-**Elements.** Container: service, web or CLI application, worker, controller or operator, database, queue, object store, custom resource definitions treated as an API surface. Level 1 people and external systems reappear as neighbours.
+**Elements.** Container: service, web or CLI application, worker, controller or operator, database, queue, object store. A C4 container is an application or data store, independent of how it is packaged or deployed. Kubernetes CRDs define API schemas; document them as contracts of the API/controller and show the relevant storage boundary. The controller/operator is a runnable container; a CRD is not. Level 1 people and external systems reappear as neighbours. See the [C4 container definition](https://c4model.com/abstractions/container).
 
 **Grill for.**
 
@@ -104,4 +104,20 @@ flowchart TB
 - How is each piece tested, and what is faked at the seam?
 - Which project conventions (layout, naming, error handling) apply?
 
-**Exit checks.** Every component interface drawn at level 3 has a concrete signature or schema. Every state machine shows its terminal and failure states. An implementer could write the first test for this component from the doc alone.
+**Exit checks.** Every level 3 interface of the component in scope has a concrete signature or schema. Every state machine shows its terminal and failure states. An implementer could write the first test for this component from the doc alone. Components deliberately deferred retain their level 3 contracts and a recorded reason for deferral.
+
+## Supporting view: Deployment
+
+Use when placement, identity or infrastructure failure boundaries affect the architecture, such as a Kubernetes platform spanning namespaces or clusters. This supplements the logical levels; it is not a fifth level. See the [C4 deployment diagram guidance](https://c4model.com/diagrams/deployment).
+
+**Scope.** One named environment, such as production. Show instances of the existing containers inside nested deployment nodes using Mermaid `flowchart` subgraphs. Keep logical container names recognizable and distinguish replicas from separate containers.
+
+**Grill for.**
+
+- Where does each container run, and what infrastructure or managed service hosts it?
+- Which cluster, namespace, zone or host boundaries affect placement and failure isolation?
+- Which identities, permissions, ingress and network boundaries govern communication?
+- What happens when a replica, node, zone or external dependency fails?
+- How do rollout, rollback and recovery preserve the agreed availability and data guarantees?
+
+**Exit checks.** Each runtime instance maps to a logical container; relevant infrastructure nodes, identity and failure boundaries are explicit. The operational flow agrees with the deployment view and the relevant acceptance criteria. Record and review infrastructure decisions through the same design loop.
