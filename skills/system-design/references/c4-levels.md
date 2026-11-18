@@ -4,34 +4,15 @@ Each level zooms into one element of the level above. Read the section for the l
 
 ## Diagram conventions (all levels)
 
-Write diagrams as Mermaid in fenced blocks inside the level's markdown file, so they render in GitHub and editor previews and diff as text. Use `flowchart` for levels 1 to 3; it renders more reliably than Mermaid's experimental C4 syntax.
+Use editable Graphviz DOT and a rendered SVG by default for structural views. Use the repository’s established renderer if it can reproduce the same conventions. Keep one box per element in a view. Put the name, C4 type, known technology and one-line responsibility on the box. Give an undecided technology an explicit review note.
 
-- Node label: name, then type and technology in brackets, then a one-line responsibility.
-- Edge label: verb phrase, then protocol in brackets from level 2 down. Arrows point in the direction of the call or dependency, with one direction per edge.
-- A `subgraph` is the boundary of the element being zoomed into. Elements outside it are neighbours, drawn without their internals.
-- Apply the shared classes below so the same kind of element looks the same in every diagram.
-- Keep a diagram to roughly fifteen elements. Past that, split by boundary or scenario.
-- Give every diagram a title line and a one-sentence legend beneath it.
+Use rounded boxes with dark text on white. Fill elements in scope pale blue (#d7eaf8), neighbours grey (#edf0f3), and outline the named parent boundary in blue (#41769b). Put the view type, subject and key on the image. Draw a directed arrow from the dependent element to its dependency. Label it with the action and the protocol for inter-process communication. Match the action label to the arrow color. For platform architectures use purple (#703b89) for publication/configuration, blue (#145886) for access, green (#146451) for execution and brown (#8b4a13) for state. Choose meaningful categories once per project and carry the same key across views. Labels must convey the meaning in greyscale.
 
-```mermaid
-flowchart TB
-  operator["Platform operator<br/>[Person]<br/>Defines agents and teams"]:::person
+Level 1 shows one product with its people and neighbours. Level 2 opens the product into applications and stores. Each level 3 view opens one named container. Each level 4 view opens one named component into code elements. Use separate linked sequence or path drawings for a time-ordered journey. Keep a prototype code view explicitly scoped to its example.
 
-  subgraph boundary["Agent platform"]
-    api["Management API<br/>[Container: Go service]<br/>Validates and stores agent definitions"]:::internal
-    store[("Registry store<br/>[Container: PostgreSQL]<br/>Agents, teams, workflows")]:::internal
-  end
+Start from the [editable component example](component-example.dot). Render with `dot -Tsvg component-example.dot -o component-example.svg`. Inspect the image at the width reviewers will see. Check for crossed paths, clipped labels, ambiguous arrowheads and boundary labels obscured by edges. Show one rendered representation per diagram and link its editable source.
 
-  cluster["Kubernetes API<br/>[External system]<br/>Runs agent workloads"]:::external
-
-  operator -->|"Submits agent definitions [HTTPS/JSON]"| api
-  api -->|"Reads and writes definitions [SQL]"| store
-  api -->|"Applies agent resources [HTTPS]"| cluster
-
-  classDef person fill:#08427b,stroke:#052e56,color:#ffffff
-  classDef internal fill:#1168bd,stroke:#0b4884,color:#ffffff
-  classDef external fill:#8a8a8a,stroke:#5c5c5c,color:#ffffff
-```
+When presenting several levels together, lead with a zoom overview. Select one traceable branch. Highlight the exact parent box, draw a labeled zoom connector from it to the next panel, and repeat its name and outline color at the expanded scope. Distinguish zoom connectors from runtime dependencies. Show a legible subset in each panel and link the full diagrams. Mark any level drawn from example code. If a lower level has no agreed design or code, end the branch there and name the gap. [Archi example](https://www.archimatetool.com/wp-content/uploads/2020/04/c4-overview.png) · [Archimetric overview](https://www.archimetric.com/the-comprehensive-guide-to-the-c4-model-for-software-architecture/)
 
 ## Level 1: System context
 
@@ -92,7 +73,7 @@ flowchart TB
 
 **Scope.** Inside one component: the types, interfaces, data shapes and state that implementers must agree on before writing it. This is a design of contracts, not a drawing of every class. Run for the components the user selects; recommend those with public contracts, persistent schemas, state machines, concurrency or nontrivial algorithms, and record the ones left to implementation.
 
-**Diagrams.** Choose the Mermaid type that fits the content: `classDiagram` for types and interfaces, `erDiagram` for stored data, `stateDiagram-v2` for lifecycles, `sequenceDiagram` for call order within the component. Pair diagrams with the actual signatures or schemas in code blocks in the project's language.
+**Diagrams.** Show structural relationships among types, interfaces or stored data. Link supporting state and sequence views when lifecycle or call order needs explanation. Pair diagrams with the actual signatures or schemas in code blocks in the project's language.
 
 **Grill for.**
 

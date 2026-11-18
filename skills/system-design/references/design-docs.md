@@ -80,6 +80,10 @@ Approval statuses describe the current contents. Reopen materially changed artif
 
 Classify open questions and record accepted risks using [the handoff criteria](../SKILL.md#4-hand-off). Traceability should specify observable pass/fail criteria and how to check them. For example: `p95 event delivery <= 10s at 100 events/s with healthy endpoints`, verified by a timed integration load test; mark it `proposed` until measured. A validation plan is not evidence that the design has passed it.
 
+## Review publication
+
+Keep the current design on the review branch/draft PR described in `SKILL.md`. Each level doc shows each diagram once. When embedding a rendered preview, keep editable diagram source in a separate linked source file. The PR description links to `DESIGN.md`, the current review level and its image. Push updated diagrams and docs together before requesting the next review. List existing unreviewed diagrams as candidates, not approved levels.
+
 ## Level docs
 
 ```markdown
@@ -88,7 +92,7 @@ Classify open questions and record accepted risks using [the handoff criteria](.
 Zooms into: <link to the parent element's doc> · Status: <in review | approved date>
 
 ## Diagram
-<Mermaid block, title and legend.>
+<A single rendered structural view with separately linked source, scope, title and legend.>
 
 ## Elements
 | Element | Type | Technology | Responsibility |

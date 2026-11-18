@@ -26,7 +26,7 @@
       "expectations": [
         "The agent read the existing DESIGN.md and 1-context.md before asking level 2 questions",
         "Questions cover state ownership, protocol between containers, and behaviour when a container fails",
-        "Any drafted 2-containers.md has a Mermaid diagram whose nodes include a technology and whose edges include a protocol",
+        "Any drafted 2-containers.md has a structural diagram with typed containers inside a named boundary, technologies and labeled inter-process protocols",
         "Any assumption made without a user answer is listed under an Assumptions heading",
         "No level 3 component diagram was produced"
       ]
@@ -174,6 +174,17 @@
         "The approved context retains internal replay and does not restore the previously rejected customer-triggered replay relationship",
         "The agent starts Level 2 with relevant questions and recommendations rather than requesting Level 1 approval again",
         "Level 2 is not marked approved and no Level 3 design or implementation is produced"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "I like the colored flow walkthrough. Show me a C4 component diagram of the webhook delivery worker for review.",
+      "expected_output": "One structural zoom into the worker, a rendered preview and editable source, with sequence details linked separately.",
+      "files": [],
+      "expectations": [
+        "The named worker boundary contains uniquely drawn typed components with responsibilities. External dependencies appear outside it.",
+        "Arrows and their action labels share category colors explained by the key.",
+        "The response distinguishes visual review from agreement on components or their contracts."
       ]
     }
   ]
