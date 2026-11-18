@@ -12,6 +12,8 @@ Level 1 shows one product with its people and neighbours. Level 2 opens the prod
 
 Start from the [editable component example](component-example.dot). Render with `dot -Tsvg component-example.dot -o component-example.svg`. Inspect the image at the width reviewers will see. Check for crossed paths, clipped labels, ambiguous arrowheads and boundary labels obscured by edges. Show one rendered representation per diagram and link its editable source.
 
+When presenting several levels together, lead with a zoom overview. Select one traceable branch. Highlight the exact parent box, draw a labeled zoom connector from it to the next panel, and repeat its name and outline color at the expanded scope. Distinguish zoom connectors from runtime dependencies. Show a legible subset in each panel and link the full diagrams. Mark any level drawn from example code. If a lower level has no agreed design or code, end the branch there and name the gap. [Archi example](https://www.archimatetool.com/wp-content/uploads/2020/04/c4-overview.png) · [Archimetric overview](https://www.archimetric.com/the-comprehensive-guide-to-the-c4-model-for-software-architecture/)
+
 ## Level 1: System context
 
 **Scope.** The system as one box, the people who use it and the external systems it depends on or serves. No internals, no technology inside the box.
