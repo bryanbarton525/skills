@@ -1,0 +1,16 @@
+digraph Worker {
+  graph [bgcolor=white, rankdir=TB, fontname="Arial", labelloc=t,
+    label="Component diagram · Delivery worker\nBlue boxes: worker components · Grey: neighbour\nGreen: execution · Brown: state · Arrow: depends on"];
+  node [shape=box, style="rounded,filled", color="#546c82", fillcolor="#d7eaf8", fontname="Arial"];
+  edge [fontname="Arial", fontsize=10, penwidth=1.5];
+  subgraph cluster_worker {
+    label="Delivery worker [container]"; color="#41769b"; style=rounded;
+    poll [label="Task poller\n[Component · Go]\nClaims pending deliveries"];
+    send [label="Delivery client\n[Component · Go HTTP client]\nSends signed requests"];
+  }
+  store [label="Delivery store\n[Container · PostgreSQL]\nRetains attempts", fillcolor="#edf0f3"];
+  target [label="Customer endpoint\n[Software system]\nReceives signed events", fillcolor="#edf0f3"];
+  poll -> store [label="Claims attempt [SQL]", color="#8b4a13", fontcolor="#8b4a13"];
+  poll -> send [label="Requests delivery", color="#146451", fontcolor="#146451"];
+  send -> target [label="Posts signed event [HTTPS]", color="#146451", fontcolor="#146451"];
+}

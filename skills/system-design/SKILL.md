@@ -13,6 +13,14 @@ The user's understanding is the product. A diagram the user approved without bei
 
 Decisions belong to the user: put each one to them with your recommendation and wait. A decision you make silently is one the user cannot explain later, which defeats the point. Facts belong to you: read the code, manifests, vendor docs and existing ADRs yourself, and cite what you found. Ask the user only what cannot be looked up, so their attention goes to judgement rather than lookups.
 
+## Repository review workflow
+
+For GitHub-backed design work, use a design branch and a draft PR as the review surface. Honor the session's publication and commit constraints; reuse existing authorization. Push the current design docs and rendered assets, open or update the draft PR, and share its URL before asking the user to review a level. Keep the PR draft until the design is agreed; publishing a draft is not approval of any level or permission to merge.
+
+Publish structural C4 views using the palette, labels, parent boundaries and editable example in the [level guide](references/c4-levels.md). Embed each rendered view once and link the editable source separately. Render and inspect the preview before sharing pinned GitHub links to the review document and diagram. Keep request journeys in supporting views. A preference for a rendering style settles presentation only. Track component and code coverage separately from visual review.
+
+Update the same PR as the interview progresses and identify what changed. Keep the current review level and approval status clear. Publish only the authorized design material; do not sweep private runtime files, credentials, generated caches or intentionally uncommitted prototypes into the PR. If publishing is unavailable, state that and provide a verified accessible preview before requesting visual review.
+
 ## 1. Frame
 
 Write two statements with the user, in this order, before any diagram.
@@ -31,7 +39,7 @@ Work levels 1 to 4 in order. Each level's decisions are the prerequisites of the
 1. **Research.** Gather the facts this level depends on: existing code, the real capabilities and limits of each named technology, deployment environment. A proposed technology that cannot do what the solution assumes is a finding to raise now.
 2. **Grill.** Interview the user in rounds. A round is every question whose prerequisites are already settled, numbered, each with your recommended answer and its reason. Wait for answers; they settle decisions and unblock the next round. Probe with concrete scenarios and failure cases ("the gateway is down while an agent is mid-task: what does the caller see?") in preference to abstract questions. Continue until no open question would change this level's diagram.
 3. **Draw.** Write the level's diagram and its doc. Every element carries a name, a one-line responsibility and, from level 2 down, its technology. Every relationship carries a verb phrase and, from level 2 down, its protocol. Mark anything you assumed without an answer as an assumption in the doc.
-4. **Review.** Show the diagram in the response using a rendered Mermaid block, or provide an accessible rendered preview when the interface cannot render Mermaid. Check rendering with available tooling; if rendering is unavailable, say so and provide the Mermaid source and a plain-language walkthrough. Link the saved doc alongside the visual. Read back each element and relationship, the assumptions, and what the diagram deliberately leaves to the next level. Walk one key scenario through it. Ask what is wrong, missing or unclear. The visual and read-back let the user review both the structure and what it means.
+4. **Review.** For repository review, push the level doc and rendered preview to the draft PR and share direct GitHub links. An inline rendered diagram can supplement that review surface; verify the user has an accessible visual. Check rendering with available tooling; if rendering is unavailable, say so and provide the editable source and a plain-language walkthrough. Link the saved doc alongside the visual. Read back each element and relationship, the assumptions, and what the diagram deliberately leaves to the next level. Walk one key scenario through it. Ask what is wrong, missing or unclear. The visual and read-back let the user review both the structure and what it means.
 5. **Refine.** Apply the corrections, grill any decision they reopen, and review again. Repeat until the user explicitly approves the level.
 6. **Record.** Mark the level approved in `DESIGN.md`, log the decisions made with their alternatives and reasons, and move unresolved items to open questions with an owner.
 
