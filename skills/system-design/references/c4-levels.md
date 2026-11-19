@@ -4,7 +4,7 @@ Each level zooms into one element of the level above. Read the section for the l
 
 ## Diagram conventions (all levels)
 
-Prefer LikeC4 for browsable structural views. Use editable DOT and a static render for standalone figures when that suits the review. Use the repository’s established renderer if it can reproduce the same conventions. Keep one box per element in a view. Put the name, C4 type, known technology and one-line responsibility on the box. Give an undecided technology an explicit review note.
+Use editable Graphviz DOT and a rendered SVG by default for structural views. Use the repository’s established renderer if it can reproduce the same conventions. Keep one box per element in a view. Put the name, C4 type, known technology and one-line responsibility on the box. Give an undecided technology an explicit review note.
 
 Use rounded boxes with dark text on white. Fill elements in scope pale blue (#d7eaf8), neighbours grey (#edf0f3), and outline the named parent boundary in blue (#41769b). Put the view type, subject and key on the image. Draw a directed arrow from the dependent element to its dependency. Label it with the action and the protocol for inter-process communication. Match the action label to the arrow color. For platform architectures use purple (#703b89) for publication/configuration, blue (#145886) for access, green (#146451) for execution and brown (#8b4a13) for state. Choose meaningful categories once per project and carry the same key across views. Labels must convey the meaning in greyscale.
 
@@ -102,12 +102,3 @@ Use when placement, identity or infrastructure failure boundaries affect the arc
 - How do rollout, rollback and recovery preserve the agreed availability and data guarantees?
 
 **Exit checks.** Each runtime instance maps to a logical container; relevant infrastructure nodes, identity and failure boundaries are explicit. The operational flow agrees with the deployment view and the relevant acceptance criteria. Record and review infrastructure decisions through the same design loop.
-
-
-## Navigable architecture reviews
-
-Give each element a stable ID and define it once. Reuse it in scoped views and dynamic sequences. Label relationships with actions and carry meaning in text as well as color. Link responsibilities to the design record and distinguish accepted behavior, experimental code and open questions. Stop each branch where the evidence ends.
-
-Publish a browser-accessible explorer using the repository’s approved access path. Link the context entry, a representative deep view and the editable model. Preserve published view IDs across revisions. Validate and build the model, then open the built artifact and exercise parent-to-child navigation, back navigation and a sequence. For protected hosting, report the rollout, sign-in gate and authenticated browser check separately.
-
-When reconstructing a whole design, inventory the decision ledger, current architecture documents, deployment profiles and evidence before selecting views. Map each decision to a named view or an explicit open boundary. Use runtime scenarios for changes over time and deployment views for placement. A successful drill-down test verifies navigation. Check design coverage independently against the inventory and label reference implementations separately from the target.
