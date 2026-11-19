@@ -17,6 +17,8 @@ Decisions belong to the user: put each one to them with your recommendation and 
 
 For GitHub-backed design work, use a design branch and a draft PR as the review surface. Honor the session's publication and commit constraints; reuse existing authorization. Push the current design docs and rendered assets, open or update the draft PR, and share its URL before asking the user to review a level. Keep the PR draft until the design is agreed; publishing a draft is not approval of any level or permission to merge.
 
+Prefer LikeC4 for a navigable architecture review. Maintain a text model with named elements, explicit relationships and scoped views. Link the model for AI and repository readers and publish the interactive explorer for human review. Follow the level guide for navigation and evidence checks.
+
 Publish structural C4 views using the palette, labels, parent boundaries and editable example in the [level guide](references/c4-levels.md). Embed each rendered view once and link the editable source separately. Render and inspect the preview before sharing pinned GitHub links to the review document and diagram. Keep request journeys in supporting views. A preference for a rendering style settles presentation only. Track component and code coverage separately from visual review.
 
 Update the same PR as the interview progresses and identify what changed. Keep the current review level and approval status clear. Publish only the authorized design material; do not sweep private runtime files, credentials, generated caches or intentionally uncommitted prototypes into the PR. If publishing is unavailable, state that and provide a verified accessible preview before requesting visual review.
